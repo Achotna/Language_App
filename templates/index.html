@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>File Upload</title>
+    {{ dropzone.load_css() }}
+    {{ dropzone.style('border: 2px dashed #0087F7; min-height: 200px;') }}
+</head>
+
+<body>
+    <h1>Upload your Excel file</h1>
+    <form action="/" class="dropzone" id="my-dropzone" method="POST" enctype="multipart/form-data">
+        {{ dropzone.create(action="/") }}
+        {{ dropzone.load_js() }}
+        {{ dropzone.config() }}
+    </form>
+</body>
+
+</html>
