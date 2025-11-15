@@ -35,6 +35,33 @@
         <button type="submit" name="clear" value="true">Clear Database</button>
     </form>
 
+    <br>
+
+
+    <h1>Your list</h1>
+      <div class="scroll-box">
+        <form method="POST">
+        <ul>
+          {% if rows %}
+            {% for row in rows %}
+
+            <input type="hidden" name="word_id_{{ loop.index }}" value="{{ row[0] }}">
+            <input type="checkbox" name="check_{{ loop.index }}" {% if row[3] == 1 %}checked{% endif %}>
+
+              <span>{{ row[1]}} > {{ row[2]}}</span> 
+                <br>
+                <br>
+            {% endfor %}
+          {% else %}
+            <p>Vous n'avez aucun mot</p>
+          {% endif %}
+        </ul>
+      
+
+            <button type="submit" name="update" value="true">Update</button>
+        </form>
+    
+</div>
 
 
 

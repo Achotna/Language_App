@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, url_for, redirect
 from flask_dropzone import Dropzone
 import pandas as pd
 from sqlalchemy import create_engine
@@ -15,6 +15,9 @@ dropzone = Dropzone(app)
 
 @app.route("/",methods=["GET", "POST"])
 def home():
+
+    rows=None
+
     #initialize database
     conn = sqlite3.connect("vocab.db")
     cursor = conn.cursor()
@@ -78,14 +81,59 @@ def home():
             conn.commit()
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        update = request.form.get("update")
+
+        if update:
+            status_list = []
+            for i in range(1, len(rows)+1):
+                check = request.form.get(f"check_{i}")
+                word_id = request.form.get(f"word_id_{i}")
+                status_list.append(1 if check else 0)
+                new_status = 1 if check else 0
+                cursor.execute("UPDATE vocab SET status = ? WHERE id = ?", (new_status, word_id))
+            conn.commit()
+            print(status_list)
+            
+
+
+        cursor.execute("SELECT * FROM vocab")
+        rows = cursor.fetchall()
         conn.close()
 
 
-
-
-
-
-    return render_template('index.html')
+    return render_template('index.html', rows=rows)
 
 
 
