@@ -2,13 +2,13 @@ import pandas as pd
 from sqlalchemy import create_engine
 import sqlite3
 
-# chaange the path to the location of your Excel file
+# change the path to the location of your Excel file
 data = pd.read_excel('C:\\Users\\Eleve\\Downloads\\Language app\\english_french test.xlsx')
 data.columns = ["english", "french"]
 data["status"] = 1
 print(data.head())
 
-#initialize database and table
+#initialize database
 conn = sqlite3.connect("vocab.db")
 cursor = conn.cursor()
 cursor.execute("""
@@ -20,7 +20,7 @@ CREATE TABLE IF NOT EXISTS vocab (
 )
 """)
 conn.commit()
-conn.close()
+
 
 #insert data into database
 engine = create_engine("sqlite:///./vocab.db")
@@ -36,9 +36,6 @@ new_data_to_insert = new_data[~new_data['english'].isin(existing_data['english']
 new_data_to_insert.to_sql("vocab", con=engine, if_exists="append", index=False)
 
 #resultat verif
-conn = sqlite3.connect("vocab.db")
-cursor = conn.cursor()
-
 cursor.execute("SELECT * FROM vocab")
 rows = cursor.fetchall()
 for row in rows:

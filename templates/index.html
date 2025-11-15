@@ -16,6 +16,29 @@
         {{ dropzone.load_js() }}
         {{ dropzone.config() }}
     </form>
+
+    <br>
+
+    <form method="POST">
+        <label for="word">Word</label>
+        <br>
+        <input type="text" name="word" placeholder="Enter a word">
+        <br>
+        <label for="translation">Translation</label>
+        <br>
+        <input type="text" name="translation" placeholder="Enter a translation">
+        <button type="submit">Send</button>
+    </form>
+
+    <br>
+    <form method="POST">
+        <button type="submit" name="clear" value="true">Clear Database</button>
+    </form>
+
+
+
+
+
 </body>
 
 </html>
