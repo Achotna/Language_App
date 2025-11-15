@@ -77,6 +77,7 @@ def home():
         clear= request.form.get("clear")
         if clear:
             cursor.execute("DELETE FROM vocab")
+            cursor.execute("DELETE FROM sqlite_sequence WHERE name='vocab'")
             print('database cleared')
             conn.commit()
 
