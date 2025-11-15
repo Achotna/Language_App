@@ -76,7 +76,7 @@ def home():
 
         clear= request.form.get("clear")
         if clear:
-            cursor.execute("DROP TABLE IF EXISTS vocab")
+            cursor.execute("DELETE FROM vocab")
             print('database cleared')
             conn.commit()
 
