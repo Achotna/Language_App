@@ -8,7 +8,21 @@ data.columns = ["english", "french"]
 data["status"] = 1
 print(data.head())
 
+#initialize database and table
+conn = sqlite3.connect("vocab.db")
+cursor = conn.cursor()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS vocab (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    english TEXT NOT NULL,
+    french TEXT NOT NULL,
+    status INTEGER
+)
+""")
+conn.commit()
+conn.close()
 
+#insert data into database
 engine = create_engine("sqlite:///./vocab.db")
 data.to_sql('vocab', con=engine, if_exists='append', index=False)
 
@@ -24,6 +38,7 @@ new_data_to_insert.to_sql("vocab", con=engine, if_exists="append", index=False)
 #resultat verif
 conn = sqlite3.connect("vocab.db")
 cursor = conn.cursor()
+
 cursor.execute("SELECT * FROM vocab")
 rows = cursor.fetchall()
 for row in rows:
@@ -32,6 +47,6 @@ for row in rows:
 
 
 #cursor.execute("DROP TABLE IF EXISTS vocab")
-#conn.commit()
+conn.commit()
 
 conn.close()
