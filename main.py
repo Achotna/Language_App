@@ -81,39 +81,6 @@ def home():
             print('database cleared')
             conn.commit()
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
         update = request.form.get("update")
 
         if update:
