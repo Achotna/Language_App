@@ -1,19 +1,19 @@
-
-
 from flask import Flask, render_template, request, url_for, redirect
 from flask_dropzone import Dropzone
 import pandas as pd
 from sqlalchemy import create_engine
 import sqlite3
 
+#SETUP
 app = Flask(__name__)
 app.config.update(
     UPLOAD_FOLDER="uploads/",
     #only excel files DROPZONE_ALLOWED_FILE_TYPE="xls,xlsx", 
     DROPZONE_MAX_FILE_SIZE=1024,  # MB
 )
-
 dropzone = Dropzone(app)
+
+###################################################################################################
 
 @app.route("/",methods=["GET", "POST"])
 def home():
@@ -33,11 +33,9 @@ def home():
             """)
     conn.commit()
 
-
-            #insert data into database
     engine = create_engine("sqlite:///./vocab.db")
 
-
+    #insert data into database
     if request.method == "POST":
         f = request.files.get("file")
         if f:
@@ -53,7 +51,7 @@ def home():
             #initialize database
             data.to_sql('vocab', con=engine, if_exists='append', index=False)
 
-
+        #add new word
         word = request.form.get("word")
         translation= request.form.get("translation")
         if word and translation:
@@ -68,13 +66,13 @@ def home():
             #insert 
             new_data_to_insert.to_sql("vocab", con=engine, if_exists="append", index=False)
 
-        #resultat verif
-        
+        #resultat verif##########################################
         cursor.execute("SELECT * FROM vocab")
         rows = cursor.fetchall()
         for row in rows:
             print(row)
         conn.commit()
+        ####################################################
 
         clear= request.form.get("clear")
         if clear:
@@ -105,7 +103,7 @@ def home():
 
     return render_template('index.html', rows=rows)
 
-
+#################################################################################################
 
 
 if __name__ == "__main__":
