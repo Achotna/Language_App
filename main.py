@@ -4,6 +4,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import sqlite3
 
+
 #SETUP
 app = Flask(__name__)
 app.config.update(
@@ -14,6 +15,8 @@ app.config.update(
 dropzone = Dropzone(app)
 
 ###################################################################################################
+
+engine = create_engine("sqlite:///./vocab.db")
 
 @app.route("/",methods=["GET", "POST"])
 def home():
@@ -33,7 +36,7 @@ def home():
             """)
     conn.commit()
 
-    engine = create_engine("sqlite:///./vocab.db")
+   
 
     #insert data into database
     if request.method == "POST":
