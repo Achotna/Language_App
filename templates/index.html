@@ -1,99 +1,99 @@
 <!DOCTYPE html>
 <html lang="en">
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
-
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>File upload</title>
+  <title>File upload</title>
 
-    <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
 
-    {{ dropzone.load_css() }}
-    {{ dropzone.style('border: 2px dashed #0087F7; min-height: 200px;') }}
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  {{ dropzone.load_css() }}
+  {{ dropzone.style('border: 2px dashed #0087F7; min-height: 200px;') }}
 </head>
+
 
 <body class="min-h-screen pt-20">
 
-  <header class="fixed top-0 left-0 w-full bg-white bg-opacity-70 backdrop-filter backdrop-blur-md shadow-md z-10">
-    <div class="container mx-auto flex items-center justify-between py-4 px-6">
-      <a href="/" class="text-xl font-bold text-gray-800">Language App</a>
-      <nav>
-        <ul class="flex space-x-6">
-          <li><a href="home.html" class="text-gray-600 hover:text-gray-800">Home</a></li>
-          <li><a href="/about" class="text-gray-600 hover:text-gray-800">About</a></li>
-          <li><a href="/contact" class="text-gray-600 hover:text-gray-800">Contact</a></li>
-        </ul>
-      </nav>
-    </div>
-    </header>
-
-  <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
-    <h1 class="text-3xl text-center text-gray-800 mb-4">Upload your excel file</h1>
-    <form action="/" class="dropzone" id="my-dropzone" method="POST" enctype="multipart/form-data">
-      {{ dropzone.create(action="/") }}
-      {{ dropzone.load_js() }}
-      {{ dropzone.config() }}
-    </form>
+ <header class="fixed top-0 left-0 w-full bg-white bg-opacity-70 backdrop-filter backdrop-blur-md shadow-md z-10">
+  <div class="container mx-auto flex items-center justify-between py-4 px-6">
+   <a href="/" class="text-xl font-bold text-gray-800">Language App</a>
+   <nav>
+    <ul class="flex space-x-6">
+     <li><a href="home.html" class="text-gray-600 hover:text-gray-800">Home</a></li>
+     <li><a href="/about" class="text-gray-600 hover:text-gray-800">About</a></li>
+     <li><a href="/contact" class="text-gray-600 hover:text-gray-800">Contact</a></li>
+    </ul>
+   </nav>
   </div>
+  </header>
 
-  <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
-    <h1 class="text-3xl text-center text-gray-800 mb-4">Settings</h1>
-  </div>
+ <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
+  <h1 class="text-3xl text-center text-gray-800 mb-4">Upload your excel file</h1>
+  <form action="/" class="dropzone" id="my-dropzone" method="POST" enctype="multipart/form-data">
+   {{ dropzone.create(action="/") }}
+   {{ dropzone.load_js() }}
+   {{ dropzone.config() }}
+  </form>
+ </div>
 
-  <div class="max-w-xl mx-auto text-gray-800 p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
+ <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
+  <h1 class="text-3xl text-center text-gray-800 mb-4">Settings</h1>
+ </div>
+
+ <div class="max-w-xl mx-auto text-gray-800 p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8">
+  <form method="POST">
+    <label class="block text-sm font-medium mt-2">Word</label>
+    <input type="text" name="word" class="border rounded px-3 py-2 w-full" placeholder="Enter a word">
+    <label for="translation">Translation</label>
+
+    <input type="text" name="translation" class="border rounded px-3 py-2 w-full" placeholder="Enter a translation">
+
+    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" >Send</button>
+  </form>
+
+  <form method="POST">
+    <button type="submit" name="clear" value="true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Clear database</button>
+  </form>
+ </div>
+
+ <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8 text-gray-800">
+  <h1>Your list</h1>
+   <div class="max-h-64 overflow-y-auto">
     <form method="POST">
-        <label class="block text-sm font-medium mt-2">Word</label>
-        <input type="text" name="word" class="border rounded px-3 py-2 w-full" placeholder="Enter a word">
-        <label for="translation">Translation</label>
+     <ul class="space-y-2">
+      {% if rows %}
+       {% for row in rows %}
 
-        <input type="text" name="translation" class="border rounded px-3 py-2 w-full"  placeholder="Enter a translation">
+       <input type="hidden" name="word_id_{{ loop.index }}" value="{{ row[0] }}">
+       <li class="flex items-center gap-3">
+        <input type="checkbox" name="check_{{ loop.index }}" {% if row[3] == 1 %}checked{% endif %}>
+        <span class="text-sm">{{ row[1]}} > {{ row[2]}}</span> 
+       </li>
+       {% endfor %}
+      {% else %}
+       <p>Vous n'avez aucun mot</p>
+      {% endif %}
+     
+     </ul>
+   </div>
 
-        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" >Send</button>
+     <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" name="update" value="true">
+      Update 
+     </button>
     </form>
+ </div>
 
-    <form method="POST">
-        <button type="submit" name="clear" value="true" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Clear database</button>
-    </form>
+ <footer class="mt-20 mb-0 bg-white bg-opacity-70 backdrop-filter backdrop-blur-md shadow-inner pb-0">
+  <div class="max-w-5xl mx-auto px-6 py-6 flex flex-col md:flex-row items center justify-between text-gray-600 text-center">
+   &copy; 2025 Language App. All rights reserved.
   </div>
-
-  <div class="max-w-xl mx-auto p-6 bg-gray-100 bg-clip-padding backdrop-filter backdrop-blur-md bg-opacity-10 border border-gray-100 rounded-md shadow-lg mb-8 mt-8 text-gray-800">
-    <h1>Your list</h1>
-      <div class="max-h-64 overflow-y-auto">
-        <form method="POST">
-          <ul class="space-y-2">
-            {% if rows %}
-              {% for row in rows %}
-
-              <input type="hidden" name="word_id_{{ loop.index }}" value="{{ row[0] }}">
-              <li class="flex items-center gap-3">
-                <input type="checkbox" name="check_{{ loop.index }}" {% if row[3] == 1 %}checked{% endif %}>
-                <span class="text-sm">{{ row[1]}} > {{ row[2]}}</span> 
-              </li>
-              {% endfor %}
-            {% else %}
-              <p>Vous n'avez aucun mot</p>
-            {% endif %}
-          
-          </ul>
-      </div>
-
-          <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700" name="update" value="true">
-            Update 
-          </button>
-        </form>
-  </div>
-
-  <footer class="mt-20 mb-0 bg-white bg-opacity-70 backdrop-filter backdrop-blur-md shadow-inner pb-0">
-    <div class="max-w-5xl mx-auto px-6 py-6 flex flex-col md:flex-row items center justify-between text-gray-600 text-center">
-      &copy; 2025 Language App. All rights reserved.
-    </div>
-  </footer>
+ </footer>
 
 
 </body>
