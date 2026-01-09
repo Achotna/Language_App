@@ -3,6 +3,7 @@ from flask_dropzone import Dropzone
 import pandas as pd
 from sqlalchemy import create_engine
 import sqlite3
+import tts_zoe_code
 
 
 #SETUP
@@ -15,6 +16,48 @@ app.config.update(
 dropzone = Dropzone(app)
 
 ###################################################################################################
+#ZOE
+
+import os
+import pandas as pd
+from sqlalchemy import create_engine
+from google.cloud import texttospeech
+from pydub import AudioSegment
+import sqlite3
+import main
+
+#Google Text to Speech API setup
+
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "D:\\Projects\\Language app\\tts_service_account.json"
+client = texttospeech.TextToSpeechClient()
+
+#Files for audio storage
+
+BASE_DIR = "audio" 
+WORDS_DIR = f"{BASE_DIR}/words"
+TRANS_DIR = f"{BASE_DIR}/translations"
+SILENCE_DIR = f"{BASE_DIR}/silence" #delay between words, dépend du choix de l'utilisateur
+FINAL_DIR = f"{BASE_DIR}/final" #audios complets, fournis à l'utilisateur
+
+for d in [WORDS_DIR, TRANS_DIR, SILENCE_DIR, FINAL_DIR]:
+    os.makedirs(d, exist_ok=True) #pour ne pas avoir d'erreur si le dossier existe déjà 
+
+
+##############################################################################################################"
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 engine = create_engine("sqlite:///./vocab.db")
 
@@ -96,12 +139,53 @@ def home():
                 cursor.execute("UPDATE vocab SET status = ? WHERE id = ?", (new_status, word_id))
             conn.commit()
             print(status_list)
+
+        audio_generate = request.form.get("audio_generate")
+        if audio_generate:
+            USER_DELAY = 2.0 #secondes de pause entre mot et traduction, faire en sorte que l'utilisateur puisse choisir -> Eventuellement avec un slider
+            USER_ZH_GENDER = "female" #ou "male"
+            USER_EN_GENDER = "male"
+
+            #Récupération des données depuis la BDD
+
+            df = pd.read_sql("SELECT english AS word, french AS translation FROM vocab WHERE status=1", engine)
+
+            #Génération audios complets pour chaque entrée => à adapter pour la BDD
+            final_audio_all = AudioSegment.empty()
+
+            for index, row in df.iterrows():
+                chinese_word = row["word"]  
+                english_word = row["translation"]  
+
+                #Audio pour une ligne
+                final_audio_path = tts_zoe_code.generate_audio_for_entry(
+                    entry={
+                        "chinese": chinese_word,
+                        "translation": english_word
+                    }, 
+                    delay_seconds=USER_DELAY,
+                    zh_gender=USER_ZH_GENDER,
+                    en_gender=USER_EN_GENDER,
+                    index=index + 1
+                )
+
+                #Ajout du segment mot à l'audio final
+                final_audio_all += AudioSegment.from_wav(final_audio_path)
+
+            #Export de l'audio final complet
+            final_audio_all.export(
+                f"{FINAL_DIR}/final_output.wav", 
+                format="wav"
+            )
+                        
             
 
 
         cursor.execute("SELECT * FROM vocab")
         rows = cursor.fetchall()
         conn.close()
+
+    
 
 
     return render_template('index.html', rows=rows)

@@ -23,6 +23,13 @@ for d in [WORDS_DIR, TRANS_DIR, SILENCE_DIR, FINAL_DIR]:
     os.makedirs(d, exist_ok=True) #pour ne pas avoir d'erreur si le dossier existe déjà 
 
 
+
+
+
+
+
+
+
 #-------------Fonction générique !!! (╹ڡ╹ )-------------
 
 def text_to_speech(
@@ -57,8 +64,30 @@ def text_to_speech(
         out.write(response.audio_content)
         #print(f'Audio content written to file "{output_file}"')
     
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #-------------Choix des voix !! (Anglais et Chinois, voix F/M pour chaque)-------------
 #J'ai mis British Eng mais on peut changer => Documentation : https://docs.cloud.google.com/text-to-speech/docs/list-voices-and-types?hl=fr#standard_voices
+
 
 VOICES = {
     "en": {
@@ -84,6 +113,24 @@ VOICES = {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #-------------Génération temps d'attente entre mot/traduction-------------
 
 def generate_silence(duration_seconds: float) -> str: 
@@ -101,6 +148,10 @@ def generate_silence(duration_seconds: float) -> str:
 
     return filename
 
+
+
+
+
 #-------------Assemblage du mot -> temps d'attente -> traduction-------------
 
 def concatenate_audios(audio_files, output_file):
@@ -110,6 +161,15 @@ def concatenate_audios(audio_files, output_file):
         final_audio += AudioSegment.from_wav(file)
 
     final_audio.export(output_file, format="wav")  #Peut-être changer en mp3 si besoin
+
+
+
+
+
+
+
+
+
 
 #-------------Pour un seul mot !-------------
 #/!\ Sûrement à modifier pour l'adapter à la base de données (￣┰￣*) /!\
@@ -161,6 +221,14 @@ def generate_audio_for_entry(entry, delay_seconds, zh_gender, en_gender, index):
 
     return final_file
 
+
+
+
+
+
+
+
+
 #-------------Génération de l'audio pour toute la BDD-------------
 #Partie non terminée ! (* ￣︿￣)
 
@@ -170,7 +238,8 @@ USER_ZH_GENDER = "female" #ou "male"
 USER_EN_GENDER = "male"
 
 #Récupération des données depuis la BDD
-df = pd.read_sql("SELECT english AS word, french AS translation FROM vocab", main.engine)
+
+df = pd.read_sql("SELECT english AS word, french AS translation FROM vocab WHERE status=1", main.engine)
 
 #Génération audios complets pour chaque entrée => à adapter pour la BDD
 final_audio_all = AudioSegment.empty()
