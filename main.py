@@ -24,7 +24,6 @@ from sqlalchemy import create_engine
 from google.cloud import texttospeech
 from pydub import AudioSegment
 import sqlite3
-import main
 
 #Google Text to Speech API setup
 
@@ -44,18 +43,6 @@ for d in [WORDS_DIR, TRANS_DIR, SILENCE_DIR, FINAL_DIR]:
 
 
 ##############################################################################################################"
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -140,9 +127,37 @@ def home():
             conn.commit()
             print(status_list)
 
+
+#pause duration setting
+        pause_duration = request.form.get("pause_duration")
+        if pause_duration:
+            pause_duration = float(pause_duration)
+            print(f"Pause duration set to {pause_duration} s")
+
+
+#gender_voice setting
+        gender_voice = request.form.get("gender_voice") 
+        if gender_voice:
+            gender_voice = str(gender_voice)
+            print(f"Gender voice: {gender_voice}")
+
+#num_loops setting
+        num_loops = request.form.get("num_loops")
+        if num_loops:  
+            num_loops = int(num_loops)
+            print(f"Number of loops set to: {num_loops}")
+
+#Language switch setting
+
+
+
+################################################################################################################################################################""
+        
+        
+
         audio_generate = request.form.get("audio_generate")
         if audio_generate:
-            USER_DELAY = 2.0 #secondes de pause entre mot et traduction, faire en sorte que l'utilisateur puisse choisir -> Eventuellement avec un slider
+            USER_DELAY = pause_duration 
             USER_ZH_GENDER = "female" #ou "male"
             USER_EN_GENDER = "male"
 
@@ -174,8 +189,8 @@ def home():
 
             #Export de l'audio final complet
             final_audio_all.export(
-                f"{FINAL_DIR}/final_output.wav", 
-                format="wav"
+                f"{FINAL_DIR}/final_output.mp3", 
+                format="mp3"
             )
                         
             

@@ -8,6 +8,7 @@ from pydub import AudioSegment
 
 #Google Text to Speech API setup
 
+lang1 ='en'
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "D:\\Projects\\Language app\\tts_service_account.json"
 client = texttospeech.TextToSpeechClient()
 
@@ -83,6 +84,8 @@ VOICES = {
         }
     }
 }
+
+
 
 
 text_block= '''世界再见'''
