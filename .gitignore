@@ -1,1 +1,3 @@
 .venv/
+tts_service_account.json
+__pycache__/
