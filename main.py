@@ -3,7 +3,7 @@ from flask_dropzone import Dropzone
 import pandas as pd
 from sqlalchemy import create_engine
 import sqlite3
-import tts_zoe_code
+#import tts_zoe_code
 
 
 #SETUP
@@ -24,14 +24,18 @@ from sqlalchemy import create_engine
 from google.cloud import texttospeech
 from pydub import AudioSegment
 import sqlite3
+from pydub.generators import Sine
+
+
 
 #Google Text to Speech API setup
 
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "D:\\Projects\\Language app\\tts_service_account.json"
 client = texttospeech.TextToSpeechClient()
 
-#Files for audio storage
-
+# ============================
+# Dossiers pour stockage audio
+# ============================
 BASE_DIR = "audio" 
 WORDS_DIR = f"{BASE_DIR}/words"
 TRANS_DIR = f"{BASE_DIR}/translations"
@@ -41,6 +45,158 @@ FINAL_DIR = f"{BASE_DIR}/final" #audios complets, fournis à l'utilisateur
 for d in [WORDS_DIR, TRANS_DIR, SILENCE_DIR, FINAL_DIR]:
     os.makedirs(d, exist_ok=True) #pour ne pas avoir d'erreur si le dossier existe déjà 
 
+
+# ======================================
+# Fonction générique Text-to-Speech
+# ======================================
+
+def text_to_speech(
+    text: str,
+    output_file: str,
+    language_code: str,
+    voice_name: str
+):
+    if not text.strip():
+        raise ValueError("Input text is empty.")
+
+    synthesis_input = texttospeech.SynthesisInput(text=text)
+
+    voice = texttospeech.VoiceSelectionParams(
+        language_code=language_code,
+        name=voice_name
+    )
+
+    audio_config = texttospeech.AudioConfig(
+        audio_encoding=texttospeech.AudioEncoding.LINEAR16
+    )
+
+    response = client.synthesize_speech(
+        input=synthesis_input,
+        voice=voice,
+        audio_config=audio_config
+    )
+
+    with open(output_file, "wb") as out:
+        out.write(response.audio_content)
+
+
+# ============================
+# Dictionnaire des voix
+# ============================
+
+VOICES = {
+    "cmn-CN": {
+        "female": "cmn-TW-Standard-A",
+        "male": "cmn-CN-Wavenet-B"
+    },
+    "en-GB": {
+        "female": "en-GB-Chirp3-HD-Leda",
+        "male": "en-GB-Chirp3-HD-Alnilam"
+    },
+    "fr-FR": {
+        "female": "fr-FR-Chirp-HD-O",
+        "male": "fr-FR-Chirp3-HD-Algenib"
+    },
+    "es-ES": {
+        "female": "es-ES-Chirp-HD-F",
+        "male": "es-ES-Chirp-HD-D"
+    }
+}
+
+
+# ============================
+# Génération du silence
+# ============================
+
+def generate_silence(duration_seconds: float) -> str:
+    filename = f"{SILENCE_DIR}/{duration_seconds:.1f}s.wav"
+
+    if os.path.exists(filename):
+        return filename
+
+    silence = AudioSegment.silent(
+        duration=int(duration_seconds * 1000)
+    )
+
+    silence.export(filename, format="wav")
+    return filename
+
+
+# ============================
+# Assemblage des audios
+# ============================
+
+def concatenate_audios(audio_files, output_file):
+    final_audio = AudioSegment.empty()
+
+    for file in audio_files:
+        final_audio += AudioSegment.from_wav(file)
+
+    final_audio.export(output_file, format="wav")
+
+
+# ============================
+# Génération audio pour une entrée
+# ============================
+
+def generate_audio_for_entry(
+    entry,
+    delay_seconds,
+    target_lang,
+    translation_lang,
+    target_gender,
+    translation_gender,
+    index
+):
+    word = entry["word"]
+    translation = entry["translation"]
+
+    target_voice_name = VOICES[target_lang][target_gender]
+    translation_voice_name = VOICES[translation_lang][translation_gender]
+
+    target_file = (
+        f"{WORDS_DIR}/{index}_{target_lang}_{target_gender}.wav"
+    )
+
+    translation_file = (
+        f"{TRANS_DIR}/{index}_{translation_lang}_{translation_gender}.wav"
+    )
+
+    final_file = (
+        f"{FINAL_DIR}/"
+        f"{index}_"
+        f"{target_lang}_{target_gender}_"
+        f"{translation_lang}_{translation_gender}_"
+        f"{delay_seconds}.wav"
+    )
+
+    if os.path.exists(final_file):
+        return final_file
+
+    if not os.path.exists(target_file):
+        text_to_speech(
+            word,
+            target_file,
+            target_lang,
+            target_voice_name
+        )
+
+    if not os.path.exists(translation_file):
+        text_to_speech(
+            translation,
+            translation_file,
+            translation_lang,
+            translation_voice_name
+        )
+
+    silence_file = generate_silence(delay_seconds)
+
+    concatenate_audios(
+        [target_file, silence_file, translation_file],
+        final_file
+    )
+
+    return final_file
 
 ##############################################################################################################"
 
@@ -157,9 +313,22 @@ def home():
 
         audio_generate = request.form.get("audio_generate")
         if audio_generate:
-            USER_DELAY = pause_duration 
-            USER_ZH_GENDER = "female" #ou "male"
-            USER_EN_GENDER = "male"
+            # ============================
+            # Configuration utilisateur
+            # ============================
+
+            USER_CONFIG = {
+                "target_lang": "cmn-CN",
+                "translation_lang": "en-GB",
+                "target_gender": "female",
+                "translation_gender": "male",
+                "delay_seconds": 2.0
+            }
+
+
+            # ============================
+            # Génération audio complet
+            # ============================
 
             #Récupération des données depuis la BDD
 
@@ -167,32 +336,39 @@ def home():
 
             #Génération audios complets pour chaque entrée => à adapter pour la BDD
             final_audio_all = AudioSegment.empty()
+            bip = Sine(1000).to_audio_segment(duration=300)
 
-            for index, row in df.iterrows():
-                chinese_word = row["word"]  
-                english_word = row["translation"]  
+            for i, (index, row) in enumerate(df.iterrows()):
+                word = row["word"]
+                translation = row["translation"] 
 
                 #Audio pour une ligne
-                final_audio_path = tts_zoe_code.generate_audio_for_entry(
+                final_audio_path = generate_audio_for_entry(
                     entry={
-                        "chinese": chinese_word,
-                        "translation": english_word
-                    }, 
-                    delay_seconds=USER_DELAY,
-                    zh_gender=USER_ZH_GENDER,
-                    en_gender=USER_EN_GENDER,
+                        "word": word,
+                        "translation": translation
+                    },
+                    delay_seconds=USER_CONFIG["delay_seconds"],
+                    target_lang=USER_CONFIG["target_lang"],
+                    translation_lang=USER_CONFIG["translation_lang"],
+                    target_gender=USER_CONFIG["target_gender"],
+                    translation_gender=USER_CONFIG["translation_gender"],
                     index=index + 1
                 )
 
                 #Ajout du segment mot à l'audio final
                 final_audio_all += AudioSegment.from_wav(final_audio_path)
 
+                #Ajout du bip entre les mots
+                if i < len(df) - 1:
+                    final_audio_all += bip
+
             #Export de l'audio final complet
             final_audio_all.export(
-                f"{FINAL_DIR}/final_output.mp3", 
+                f"{FINAL_DIR}/final_output.mp3",
                 format="mp3"
             )
-                        
+                                    
             
 
 
